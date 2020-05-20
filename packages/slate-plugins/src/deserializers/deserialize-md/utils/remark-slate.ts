@@ -1,20 +1,24 @@
 /* eslint-disable camelcase */
 import merge from 'deepmerge';
+import { BLOCKQUOTE, HeadingType, LINK, ListType, PARAGRAPH, CODE } from 'elements';
+import { deserializeText, deserializeThematicBreak, deserializeCodeBlock } from 'deserializers/deserialize-md/utils';
+// import {  } from './deserializeThematicBreak'
 
 export const mdNodeTypes = {
-  paragraph: 'paragraph',
-  block_quote: 'block_quote',
-  link: 'link',
-  ul_list: 'ul_list',
-  ol_list: 'ol_list',
-  listItem: 'list_item',
+  paragraph: PARAGRAPH,
+  block_quote: BLOCKQUOTE,
+  link: LINK,
+  ul_list: ListType.UL,
+  ol_list: ListType.OL,
+  listItem: ListType.LI,
+  code: CODE,
   heading: {
-    1: 'heading_one',
-    2: 'heading_two',
-    3: 'heading_three',
-    4: 'heading_four',
-    5: 'heading_five',
-    6: 'heading_three',
+    1: HeadingType.H1,
+    2: HeadingType.H2,
+    3: HeadingType.H3,
+    4: HeadingType.H4,
+    5: HeadingType.H5,
+    6: HeadingType.H6,
   },
 };
 
@@ -29,6 +33,27 @@ export function transform(node: any, opts: any) {
 
   // const parentNode = node.parentNode || null;
   let children = [{ text: '' }];
+
+  // text node
+  const textNode = deserializeText(node)
+  if (textNode) return textNode;
+
+  // if not an element node
+  // ??????
+  
+  // break line
+  const breakLine = deserializeThematicBreak(node, types)
+  console.log("transform -> breakLine", breakLine)
+  if (breakLine) return breakLine;
+
+  console.log('node => ', node)
+
+  const { type } = node
+  let parent = node
+
+  //codeBlock
+  const codeBlockNode = deserializeCodeBlock(node, types)
+  if (codeBlockNode) return codeBlockNode;
 
   if (Array.isArray(node.children) && node.children.length > 0) {
     children = node.children.map(function(c: any) {
@@ -105,9 +130,12 @@ export function transform(node: any, opts: any) {
   }
 }
 
-export default function plugin(this: any, opts: any) {
+export default function plugin(this: any, opts?: any) {
   const settings = opts || {};
+  const userTypes = settings.nodeTypes || {};
+  const nodeTypes = merge(mdNodeTypes, userTypes);
   this.Compiler = function compiler(node: any) {
-    return node.children.map((c: any) => transform(c, settings));
+    return node.children.map((c: any) => 
+      transform(c, merge(settings, { nodeTypes })));
   };
 }

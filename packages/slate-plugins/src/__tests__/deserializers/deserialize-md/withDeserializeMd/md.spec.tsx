@@ -2,7 +2,6 @@
 
 import { jsx } from '__test-utils__/jsx';
 import { withDeserializeMd } from 'deserializers/deserialize-md';
-import { HeadingPlugin } from 'elements/heading';
 import { Editor } from 'slate';
 import { withReact } from 'slate-react';
 
@@ -30,7 +29,7 @@ const output = (
 ) as any;
 
 it('should insert an H1 in teh editor', () => {
-  const editor = withDeserializeMd([HeadingPlugin()])(withReact(input));
+  const editor = withDeserializeMd(withReact(input));
 
   editor.insertData(data as any);
   expect(input.children).toEqual(output.children);

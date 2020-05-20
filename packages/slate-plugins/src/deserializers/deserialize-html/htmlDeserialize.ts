@@ -25,7 +25,7 @@ export const htmlDeserialize = (plugins: SlatePlugin[]) => (
   const { nodeName } = node;
   let parent = node;
 
-  // blockquote
+  // codeblock
   if (nodeName === 'PRE' && node.childNodes[0]?.nodeName === 'CODE') {
     [parent] = node.childNodes;
   }

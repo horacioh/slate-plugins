@@ -2,7 +2,6 @@
 
 import { jsx } from '__test-utils__/jsx';
 import { withDeserializeMd } from 'deserializers/deserialize-md';
-import { BoldPlugin } from 'marks/bold';
 import { Editor } from 'slate';
 import { withReact } from 'slate-react';
 
@@ -30,7 +29,7 @@ const output = (
 ) as any;
 
 it('should do nothing', () => {
-  const editor = withDeserializeMd([BoldPlugin()])(withReact(input));
+  const editor = withDeserializeMd(withReact(input));
 
   editor.insertData(data as any);
 

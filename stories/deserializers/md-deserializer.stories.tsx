@@ -50,7 +50,7 @@ const withPlugins = [
   withReact,
   withHistory,
   withLink(nodeTypes),
-  withDeserializeMd(plugins),
+  withDeserializeMd,
   withImage(nodeTypes),
   withTable(nodeTypes),
 ] as const;
