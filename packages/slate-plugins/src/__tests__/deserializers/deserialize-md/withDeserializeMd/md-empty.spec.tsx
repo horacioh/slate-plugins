@@ -1,9 +1,9 @@
 /** @jsx jsx */
 
-import { jsx } from '__test-utils__/jsx';
-import { withDeserializeMd } from 'deserializers/deserialize-md';
-import { Editor } from 'slate';
-import { withReact } from 'slate-react';
+import { jsx } from "__test-utils__/jsx";
+import { withDeserializeMd } from "deserializers/deserialize-md";
+import { Editor } from "../../../../index";
+import { withReact } from "slate-react";
 
 const input = ((
   <editor>
@@ -16,7 +16,7 @@ const input = ((
 
 // noinspection CheckTagEmptyBody
 const data = {
-  getData: () => '',
+  getData: () => "",
 };
 
 const output = (
@@ -28,7 +28,7 @@ const output = (
   </editor>
 ) as any;
 
-it('should do nothing', () => {
+it("should do nothing", () => {
   const editor = withDeserializeMd(withReact(input));
 
   editor.insertData(data as any);
