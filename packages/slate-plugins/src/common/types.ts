@@ -1,4 +1,4 @@
-import { Editor, NodeEntry, Range } from 'slate';
+import { Editor, Node, NodeEntry, Range } from 'slate';
 import { RenderElementProps, RenderLeafProps } from 'slate-react';
 
 /**
@@ -31,7 +31,7 @@ export type RenderElement = (
 export type RenderLeaf = (props: RenderLeafProps) => JSX.Element;
 
 // Handler when we press a key.
-export type OnKeyDown = (e: any, editor: Editor, props?: any) => void;
+export type OnKeyDown = (e: any, editor: Editor, options?: any) => void;
 
 export type DeserializeElement = Record<
   string,
@@ -71,9 +71,20 @@ export interface DeserializeHtml {
  */
 export interface SlatePlugin {
   decorate?: Decorate;
-  onDOMBeforeInput?: OnDOMBeforeInput;
+  deserialize?: DeserializeHtml;
+  inlineTypes?: string[];
   renderElement?: RenderElement;
   renderLeaf?: RenderLeaf;
-  onKeyDown?: OnKeyDown;
-  deserialize?: DeserializeHtml;
+  voidTypes?: string[];
+  onDOMBeforeInput?: OnDOMBeforeInput;
+  onKeyDown?: OnKeyDown | null;
+}
+
+export interface QueryOptions {
+  // Condition on the node to be valid.
+  filter?: (entry: NodeEntry<Node>) => boolean;
+  // List of types that are valid. If empty or undefined - allow all.
+  allow?: string[];
+  // List of types that are invalid.
+  exclude?: string[];
 }

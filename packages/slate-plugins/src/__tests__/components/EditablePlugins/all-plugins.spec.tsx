@@ -1,6 +1,22 @@
 import React, { useMemo, useState } from 'react';
+import {
+  initialValueAutoformat,
+  initialValueBasicElements,
+  initialValueBasicMarks,
+  initialValueEmbeds,
+  initialValueExitBreak,
+  initialValueForcedLayout,
+  initialValueHighlight,
+  initialValueImages,
+  initialValueLinks,
+  initialValueList,
+  initialValueMentions,
+  initialValuePasteHtml,
+  initialValueSoftBreak,
+  initialValueTables,
+  nodeTypes,
+} from '__fixtures__/initialValues.fixtures';
 import { CodeAlt } from '@styled-icons/boxicons-regular/CodeAlt';
-import { CodeBlock } from '@styled-icons/boxicons-regular/CodeBlock';
 import { Subscript, Superscript } from '@styled-icons/foundation';
 import {
   FormatBold,
@@ -16,46 +32,39 @@ import {
   LooksTwo,
 } from '@styled-icons/material';
 import { render } from '@testing-library/react';
-import { pipe } from 'common';
-import { withDeserializeHtml } from 'deserializers/deserialize-html';
+import { pipe, SlateDocument, withTransforms } from 'common';
+import { withNodeID } from 'common/transforms/node-id';
+import { withDeserializeHTML } from 'deserializers/deserialize-html';
+import { ToolbarElement, withInlineVoid, withToggleType } from 'element';
 import {
-  ToolbarBlock,
-  withBlock,
-  withBreakEmptyReset,
-  withDeleteStartReset,
-  withVoid,
-} from 'element';
-import {
-  ToolbarCode,
+  BasicElementPlugins,
   ToolbarImage,
   ToolbarLink,
   ToolbarList,
   ToolbarTable,
-  withImage,
+  withImageUpload,
   withLink,
   withList,
-  withMention,
   withTable,
 } from 'elements';
 import { ActionItemPlugin } from 'elements/action-item';
 import { BlockquotePlugin } from 'elements/blockquote';
-import { CodePlugin } from 'elements/code';
+import { CodeBlockPlugin } from 'elements/code-block';
 import { HeadingPlugin } from 'elements/heading';
 import { ImagePlugin } from 'elements/image';
 import { LinkPlugin } from 'elements/link';
 import { ListPlugin } from 'elements/list';
+import { MediaEmbedPlugin } from 'elements/media-embed';
 import { MentionPlugin } from 'elements/mention';
 import { ParagraphPlugin } from 'elements/paragraph';
 import { TablePlugin } from 'elements/table';
-import { VideoPlugin } from 'elements/video';
+import { withAutoformat } from 'handlers/autoformat';
+import { SoftBreakPlugin } from 'handlers/soft-break';
 import { ToolbarMark } from 'mark/components';
+import { BasicMarkPlugins } from 'marks/basic-marks';
 import { BoldPlugin, MARK_BOLD, renderLeafBold } from 'marks/bold';
+import { CodePlugin, MARK_CODE, renderLeafCode } from 'marks/code';
 import { HighlightPlugin, renderLeafHighlight } from 'marks/highlight';
-import {
-  InlineCodePlugin,
-  MARK_CODE,
-  renderLeafInlineCode,
-} from 'marks/inline-code';
 import { ItalicPlugin, MARK_ITALIC, renderLeafItalic } from 'marks/italic';
 import {
   MARK_STRIKETHROUGH,
@@ -77,28 +86,20 @@ import {
   renderLeafUnderline,
   UnderlinePlugin,
 } from 'marks/underline';
-import { withShortcuts } from 'md-shortcuts';
-import { withForcedLayout, withNodeID, withTransforms } from 'node';
-import { SearchHighlightPlugin } from 'search-highlight';
+import { withNormalizeTypes } from 'normalizers';
 import { createEditor } from 'slate';
 import { withHistory } from 'slate-history';
 import { Slate, withReact } from 'slate-react';
-import { SoftBreakPlugin } from 'soft-break';
-import { EditablePlugins, HeadingToolbar, HoveringToolbar } from 'components';
-import {
-  initialValueActionItem,
-  initialValueElements,
-  initialValueEmbeds,
-  initialValueImages,
-  initialValueLinks,
-  initialValueMarks,
-  initialValueMentions,
-  initialValueTables,
-  initialValueVoids,
-  nodeTypes,
-} from '../../../../../../stories/config/initialValues';
+import { SearchHighlightPlugin } from 'widgets/search-highlight';
+import { BalloonToolbar, EditablePlugins, HeadingToolbar } from 'components';
+import { ExitBreakPlugin } from '../../../handlers/exit-break';
+import { withResetBlockType } from '../../../handlers/reset-block-type';
+
+const markOptions = { ...nodeTypes, hotkey: '' };
 
 const plugins = [
+  ...BasicElementPlugins(),
+  ...BasicMarkPlugins(),
   BlockquotePlugin(nodeTypes),
   ActionItemPlugin(nodeTypes),
   HeadingPlugin(nodeTypes),
@@ -108,61 +109,73 @@ const plugins = [
   MentionPlugin(nodeTypes),
   ParagraphPlugin(nodeTypes),
   TablePlugin(nodeTypes),
-  VideoPlugin(nodeTypes),
-  CodePlugin(nodeTypes),
+  MediaEmbedPlugin(nodeTypes),
+  CodeBlockPlugin(nodeTypes),
+  BoldPlugin(markOptions),
   BoldPlugin(),
-  InlineCodePlugin(),
+  CodePlugin(markOptions),
+  CodePlugin(),
+  ItalicPlugin(markOptions),
   ItalicPlugin(),
+  StrikethroughPlugin(markOptions),
   StrikethroughPlugin(),
+  HighlightPlugin(markOptions),
   HighlightPlugin(),
+  UnderlinePlugin(markOptions),
   UnderlinePlugin(),
+  SubscriptPlugin(markOptions),
   SubscriptPlugin(),
+  SuperscriptPlugin(markOptions),
   SuperscriptPlugin(),
   SearchHighlightPlugin(),
   SoftBreakPlugin(),
+  ExitBreakPlugin(),
 ];
 
 const initialValue = [
-  ...initialValueMarks,
-  ...initialValueElements,
-  ...initialValueActionItem,
-  ...initialValueEmbeds,
+  ...initialValueForcedLayout,
+  ...initialValueBasicMarks,
+  ...initialValueHighlight,
+  ...initialValueBasicElements,
+  ...initialValueList,
+  ...initialValueTables,
+  ...initialValueLinks,
   ...initialValueMentions,
   ...initialValueImages,
-  ...initialValueVoids,
-  ...initialValueLinks,
-  ...initialValueTables,
+  ...initialValueEmbeds,
+  ...initialValueAutoformat,
+  ...initialValueSoftBreak,
+  ...initialValueExitBreak,
+  ...initialValuePasteHtml,
 ];
 
-const resetOptions = {
-  ...nodeTypes,
-  types: [nodeTypes.typeActionItem, nodeTypes.typeBlockquote],
-};
+const withPlugins = [
+  withReact,
+  withHistory,
+  withTable(nodeTypes),
+  withLink(),
+  withDeserializeHTML({ plugins }),
+  withImageUpload(),
+  withToggleType({ defaultType: nodeTypes.typeP }),
+  withResetBlockType({
+    types: [nodeTypes.typeActionItem, nodeTypes.typeBlockquote],
+    defaultType: nodeTypes.typeP,
+  }),
+  withList(nodeTypes),
+  withAutoformat(nodeTypes),
+  withTransforms(),
+  withNormalizeTypes({
+    rules: [{ path: [0, 0], strictType: nodeTypes.typeH1 }],
+  }),
+  withNodeID(),
+  withInlineVoid({ plugins }),
+] as const;
 
 const Editor = () => {
   const decorate: any = [];
   const onKeyDown: any = [];
 
   const [value, setValue] = useState(initialValue);
-
-  const withPlugins = [
-    withReact,
-    withHistory,
-    withTable(nodeTypes),
-    withLink(nodeTypes),
-    withDeserializeHtml(plugins),
-    withImage(nodeTypes),
-    withMention(nodeTypes),
-    withBlock(nodeTypes),
-    withDeleteStartReset(resetOptions),
-    withBreakEmptyReset(resetOptions),
-    withList(nodeTypes),
-    withShortcuts(nodeTypes),
-    withVoid([nodeTypes.typeVideo]),
-    withTransforms(),
-    withForcedLayout(),
-    withNodeID(),
-  ] as const;
 
   const editor = useMemo(() => pipe(createEditor(), ...withPlugins), [
     withPlugins,
@@ -173,12 +186,12 @@ const Editor = () => {
       editor={editor}
       value={value}
       onChange={(newValue) => {
-        setValue(newValue);
+        setValue(newValue as SlateDocument);
       }}
     >
       <HeadingToolbar>
-        <ToolbarBlock type={nodeTypes.typeH1} icon={<LooksOne />} />
-        <ToolbarBlock type={nodeTypes.typeH2} icon={<LooksTwo />} />
+        <ToolbarElement type={nodeTypes.typeH1} icon={<LooksOne />} />
+        <ToolbarElement type={nodeTypes.typeH2} icon={<LooksTwo />} />
         <ToolbarMark type={MARK_BOLD} icon={<FormatBold />} />
         <ToolbarMark type={MARK_ITALIC} icon={<FormatItalic />} />
         <ToolbarMark type={MARK_UNDERLINE} icon={<FormatUnderlined />} />
@@ -197,12 +210,14 @@ const Editor = () => {
         <ToolbarLink {...nodeTypes} icon={<Link />} />
         <ToolbarList {...nodeTypes} icon={<FormatListBulleted />} />
         <ToolbarList {...nodeTypes} icon={<FormatListNumbered />} />
-        <ToolbarBlock type={nodeTypes.typeBlockquote} icon={<FormatQuote />} />
-        <ToolbarCode icon={<CodeBlock />} />
+        <ToolbarElement
+          type={nodeTypes.typeBlockquote}
+          icon={<FormatQuote />}
+        />
         <ToolbarImage {...nodeTypes} icon={<Image />} />
-        <ToolbarTable action={jest.fn()} icon={null} />
+        <ToolbarTable transform={jest.fn()} icon={null} />
       </HeadingToolbar>
-      <HoveringToolbar>
+      <BalloonToolbar>
         <ToolbarMark reversed type={MARK_BOLD} icon={<FormatBold />} />
         <ToolbarMark reversed type={MARK_ITALIC} icon={<FormatItalic />} />
         <ToolbarMark
@@ -210,7 +225,7 @@ const Editor = () => {
           type={MARK_UNDERLINE}
           icon={<FormatUnderlined />}
         />
-      </HoveringToolbar>
+      </BalloonToolbar>
       <EditablePlugins
         plugins={plugins}
         decorate={decorate}
@@ -218,7 +233,7 @@ const Editor = () => {
         renderLeaf={[
           renderLeafHighlight(),
           renderLeafBold(),
-          renderLeafInlineCode(),
+          renderLeafCode(),
           renderLeafItalic(),
           renderLeafStrikethrough(),
           renderLeafSubscript(),

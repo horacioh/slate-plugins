@@ -1,11 +1,13 @@
-import { SlatePlugin } from 'common/types';
-import { RenderElementOptions } from 'element';
+import { SlatePlugin } from '../../common';
 import { deserializeLink } from './deserializeLink';
 import { renderElementLink } from './renderElementLink';
+import { LINK, LinkPluginOptions } from './types';
 
-export const LinkPlugin = (
-  options?: RenderElementOptions & { typeLink?: string }
-): SlatePlugin => ({
+/**
+ * Enables support for hyperlinks.
+ */
+export const LinkPlugin = (options?: LinkPluginOptions): SlatePlugin => ({
   renderElement: renderElementLink(options),
   deserialize: deserializeLink(options),
+  inlineTypes: [options?.typeLink || LINK],
 });

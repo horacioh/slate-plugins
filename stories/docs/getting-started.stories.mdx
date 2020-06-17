@@ -7,7 +7,7 @@ import { Meta } from '@storybook/addon-docs/blocks';
 ## 📦 Install
 
 ```bash
-yarn add slate-plugins-next@0.58.5
+yarn add @udecode/slate-plugins
 ```
 
 > ⚠️ In production, you should pin the dependency until 1.0.0 is
@@ -19,7 +19,7 @@ You will also need these peerDependencies:
 yarn add slate slate-hyperscript slate-react styled-components react react-dom
 ```
 
-For full documentation on using `slate-plugins-next` visit:
+For full documentation on using `@udecode/slate-plugins` visit:
 [slate-plugins-next.netlify.app](https://slate-plugins-next.netlify.app/)
 
 For additional help, join us in our
@@ -41,7 +41,7 @@ import {
   ItalicPlugin,
   UnderlinePlugin,
   pipe,
-} from 'slate-plugins-next';
+} from '@udecode/slate-plugins';
 
 const initialValue: Node[] = [
   {
@@ -64,7 +64,7 @@ export const Editor = () => {
     <Slate
       editor={editor}
       value={value}
-      onChange={newValue => setValue(newValue)}
+      onChange={newValue => setValue(newValue as SlateDocument)}
     >
       <EditablePlugins plugins={plugins} placeholder="Enter some text..." />
     </Slate>

@@ -1,17 +1,17 @@
+import { Ancestor, Editor, Element, NodeEntry, Path, Transforms } from 'slate';
 import {
   isBlockTextEmpty,
   isFirstChild,
   isNodeInSelection,
   isRangeAtRoot,
-} from 'common/queries';
-import { PARAGRAPH } from 'elements/paragraph';
-import { Ancestor, Editor, Element, NodeEntry, Path, Transforms } from 'slate';
+} from '../../common/queries';
+import { PARAGRAPH } from '../paragraph';
 import { isList } from './queries';
 import {
   defaultListTypes,
   ListHotkey,
+  ListOnKeyDownOptions,
   ListType,
-  ListTypeOptions,
 } from './types';
 
 /**
@@ -123,7 +123,7 @@ export const onKeyDownList = ({
   typeOl = ListType.OL,
   typeLi = ListType.LI,
   typeP = PARAGRAPH,
-}: ListTypeOptions = {}) => (e: KeyboardEvent, editor: Editor) => {
+}: ListOnKeyDownOptions = {}) => (e: KeyboardEvent, editor: Editor) => {
   const options = { typeUl, typeOl, typeLi, typeP };
 
   if (Object.values(ListHotkey).includes(e.key)) {

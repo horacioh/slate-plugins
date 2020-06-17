@@ -1,10 +1,10 @@
-import { DeserializeHtml } from 'common/types';
-import { getElementDeserializer } from 'element/utils';
-import { ACTION_ITEM } from 'elements/action-item/types';
+import { DeserializeHtml } from '../../common';
+import { getElementDeserializer } from '../../element/utils';
+import { ACTION_ITEM, ActionItemDeserializeOptions } from './types';
 
 export const deserializeActionItem = ({
   typeActionItem = ACTION_ITEM,
-} = {}): DeserializeHtml => ({
+}: ActionItemDeserializeOptions = {}): DeserializeHtml => ({
   element: getElementDeserializer(typeActionItem, {
     createElement: (el) => ({
       type: typeActionItem,

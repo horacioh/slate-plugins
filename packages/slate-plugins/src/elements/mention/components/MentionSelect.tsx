@@ -1,60 +1,82 @@
-import React, { useEffect, useRef } from 'react';
+import * as React from 'react';
+import { useEffect, useRef } from 'react';
+import { classNamesFunction, styled } from '@uifabric/utilities';
 import { ReactEditor, useSlate } from 'slate-react';
-import { PortalBody } from 'components';
-import { MentionableItem } from '../types';
+import { getPreventDefaultHandler } from '../../../common/utils';
+import { PortalBody } from '../../../components/PortalBody';
+import { getMentionSelectStyles } from './MentionSelect.styles';
+import {
+  MentionSelectProps,
+  MentionSelectStyleProps,
+  MentionSelectStyles,
+} from './MentionSelect.types';
 
-export const MentionSelect = ({
-  target,
-  mentionables,
-  index,
-}: {
-  target: any;
-  mentionables: MentionableItem[];
-  index: number;
-}) => {
+const getClassNames = classNamesFunction<
+  MentionSelectStyleProps,
+  MentionSelectStyles
+>();
+
+export const MentionSelectBase = ({
+  className,
+  styles,
+  at,
+  options,
+  valueIndex,
+  onClickMention,
+  ...props
+}: MentionSelectProps) => {
+  const classNames = getClassNames(styles, {
+    className,
+  });
+
   const ref: any = useRef();
   const editor = useSlate();
 
   useEffect(() => {
-    if (target && mentionables.length > 0) {
+    if (at && options.length > 0) {
       const el = ref.current;
-      const domRange = ReactEditor.toDOMRange(editor, target);
+      const domRange = ReactEditor.toDOMRange(editor, at);
       const rect = domRange.getBoundingClientRect();
       if (el) {
         el.style.top = `${rect.top + window.pageYOffset + 24}px`;
         el.style.left = `${rect.left + window.pageXOffset}px`;
       }
     }
-  }, [mentionables.length, editor, target]);
+  }, [options.length, editor, at]);
+
+  if (!at || !options.length) {
+    return null;
+  }
 
   return (
     <PortalBody>
-      <div
-        ref={ref}
-        style={{
-          top: '-9999px',
-          left: '-9999px',
-          position: 'absolute',
-          zIndex: 1,
-          padding: '3px',
-          background: 'white',
-          borderRadius: '4px',
-          boxShadow: '0 1px 5px rgba(0,0,0,.2)',
-        }}
-      >
-        {mentionables.map((mentionable, i) => (
+      <div ref={ref} className={classNames.root} {...props}>
+        {options.map((option, i) => (
           <div
-            key={`${i}${mentionable.value}`}
-            style={{
-              padding: '1px 3px',
-              borderRadius: '3px',
-              background: i === index ? '#B4D5FF' : 'transparent',
-            }}
+            key={`${i}${option.value}`}
+            className={
+              i === valueIndex
+                ? classNames.mentionItemSelected
+                : classNames.mentionItem
+            }
+            onMouseDown={getPreventDefaultHandler(
+              onClickMention,
+              editor,
+              option
+            )}
           >
-            {mentionable.value}
+            {option.value}
           </div>
         ))}
       </div>
     </PortalBody>
   );
 };
+
+export const MentionSelect = styled<
+  MentionSelectProps,
+  MentionSelectStyleProps,
+  MentionSelectStyles
+>(MentionSelectBase, getMentionSelectStyles, undefined, {
+  scope: 'MentionSelect',
+});

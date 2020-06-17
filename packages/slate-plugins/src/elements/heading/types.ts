@@ -1,3 +1,7 @@
+import { Element } from 'slate';
+import { RenderElementProps } from 'slate-react';
+import { RenderElementOptions } from '../../element';
+
 export enum HeadingType {
   H1 = 'h1',
   H2 = 'h2',
@@ -7,7 +11,14 @@ export enum HeadingType {
   H6 = 'h6',
 }
 
-export interface HeadingTypeOptions {
+// Data of Element node
+export interface HeadingNodeData {}
+
+// Element node
+export interface HeadingNode extends Element, HeadingNodeData {}
+
+// Type option
+interface TypeOption {
   typeH1?: string;
   typeH2?: string;
   typeH3?: string;
@@ -16,11 +27,25 @@ export interface HeadingTypeOptions {
   typeH6?: string;
 }
 
-export interface DeserializeHeadingOptions extends HeadingTypeOptions {
+interface LevelsOption {
+  /**
+   * Heading levels supported from 1 to `levels`
+   */
   levels?: number;
 }
 
-export interface RenderElementHeadingOptions extends DeserializeHeadingOptions {
+// deserialize options
+export interface HeadingDeserializeOptions extends TypeOption, LevelsOption {}
+
+// renderElement options given as props
+interface HeadingRenderElementOptionsProps {}
+
+// renderElement options
+export interface HeadingRenderElementOptions
+  extends RenderElementOptions,
+    HeadingRenderElementOptionsProps,
+    TypeOption,
+    LevelsOption {
   H1?: any;
   H2?: any;
   H3?: any;
@@ -30,4 +55,14 @@ export interface RenderElementHeadingOptions extends DeserializeHeadingOptions {
   fontSize?: number;
 }
 
-export interface HeadingPluginOptions extends RenderElementHeadingOptions {}
+// renderElement props
+export interface HeadingRenderElementProps
+  extends RenderElementProps,
+    HeadingRenderElementOptionsProps {
+  element: HeadingNode;
+}
+
+// Plugin options
+export interface HeadingPluginOptions
+  extends HeadingRenderElementOptions,
+    HeadingDeserializeOptions {}

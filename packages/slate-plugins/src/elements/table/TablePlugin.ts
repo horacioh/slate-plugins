@@ -1,11 +1,12 @@
-import { SlatePlugin } from 'common/types';
+import { SlatePlugin } from '../../common';
 import { deserializeTable } from './deserializeTable';
 import { renderElementTable } from './renderElementTable';
-import { RenderElementTableOptions } from './types';
+import { TablePluginOptions } from './types';
 
-export const TablePlugin = (
-  options?: RenderElementTableOptions
-): SlatePlugin => ({
+/**
+ * Enables support for tables.
+ */
+export const TablePlugin = (options?: TablePluginOptions): SlatePlugin => ({
   renderElement: renderElementTable(options),
   deserialize: deserializeTable(options),
 });

@@ -1,12 +1,13 @@
-import { SlatePlugin } from 'common/types';
+import { SlatePlugin } from '../../common';
 import { deserializeList } from './deserializeList';
 import { onKeyDownList } from './onKeyDownList';
 import { renderElementList } from './renderElementList';
-import { RenderElementListOptions } from './types';
+import { ListPluginOptions } from './types';
 
-export const ListPlugin = (
-  options?: RenderElementListOptions
-): SlatePlugin => ({
+/**
+ * Enables support for bulleted, numbered and to-do lists.
+ */
+export const ListPlugin = (options?: ListPluginOptions): SlatePlugin => ({
   renderElement: renderElementList(options),
   deserialize: deserializeList(options),
   onKeyDown: onKeyDownList(options),

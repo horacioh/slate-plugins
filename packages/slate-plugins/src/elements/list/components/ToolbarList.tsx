@@ -1,25 +1,25 @@
-import React from 'react';
-import { createDefaultHandler } from 'common/utils/createDefaultHandler';
-import { ToolbarBlock } from 'element/components';
-import { ListType } from 'elements/list/types';
+import * as React from 'react';
 import { useSlate } from 'slate-react';
-import { ToolbarCustomProps } from 'components/Toolbar';
+import { getPreventDefaultHandler } from '../../../common/utils';
+import { ToolbarButtonProps } from '../../../components/ToolbarButton';
+import { ToolbarElement } from '../../../element/components';
 import { toggleList } from '../transforms';
+import { ListType } from '../types';
 
 export const ToolbarList = ({
   typeList = ListType.UL,
   ...props
-}: ToolbarCustomProps) => {
+}: ToolbarButtonProps) => {
   const editor = useSlate();
 
   return (
-    <ToolbarBlock
-      {...props}
+    <ToolbarElement
       type={typeList}
-      onMouseDown={createDefaultHandler(toggleList, editor, {
+      onMouseDown={getPreventDefaultHandler(toggleList, editor, {
         ...props,
         typeList,
       })}
+      {...props}
     />
   );
 };

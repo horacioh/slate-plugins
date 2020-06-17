@@ -1,14 +1,10 @@
-import {
-  getElementComponent,
-  getRenderElement,
-  RenderElementOptions,
-} from 'element';
-import { PARAGRAPH } from './types';
+import { getElementComponent, getRenderElement } from '../../element/utils';
+import { PARAGRAPH, ParagraphRenderElementOptions } from './types';
 
 export const renderElementParagraph = ({
   typeP = PARAGRAPH,
-  component = getElementComponent('div'),
-}: RenderElementOptions = {}) =>
+  component = getElementComponent('p'),
+}: ParagraphRenderElementOptions = {}) =>
   getRenderElement({
     type: typeP,
     component,

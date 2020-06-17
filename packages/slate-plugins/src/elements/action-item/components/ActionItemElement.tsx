@@ -1,12 +1,8 @@
-import React from 'react';
+import * as React from 'react';
 import { Transforms } from 'slate';
-import {
-  ReactEditor,
-  RenderElementProps,
-  useEditor,
-  useReadOnly,
-} from 'slate-react';
+import { ReactEditor, useEditor, useReadOnly } from 'slate-react';
 import styled from 'styled-components';
+import { ActionItemRenderElementProps } from '../types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -44,10 +40,10 @@ export const ActionItemElement = ({
   attributes,
   children,
   element,
-}: RenderElementProps) => {
+}: ActionItemRenderElementProps) => {
   const editor = useEditor();
   const readOnly = useReadOnly();
-  const checked = element.checked as boolean;
+  const { checked } = element;
 
   return (
     <Wrapper {...attributes} data-slate-checked={element.checked}>

@@ -1,7 +1,10 @@
-import React from 'react';
-import { RenderLeafProps } from 'slate-react';
+import * as React from 'react';
 import styled from 'styled-components';
-import { MARK_STRIKETHROUGH } from './types';
+import {
+  MARK_STRIKETHROUGH,
+  StrikethroughRenderLeafOptions,
+  StrikethroughRenderLeafProps,
+} from './types';
 
 const StrikethroughText = styled.span`
   text-decoration: line-through;
@@ -9,10 +12,16 @@ const StrikethroughText = styled.span`
 
 export const renderLeafStrikethrough = ({
   typeStrikethrough = MARK_STRIKETHROUGH,
-} = {}) => ({ children, leaf }: RenderLeafProps) => {
+}: StrikethroughRenderLeafOptions = {}) => ({
+  children,
+  leaf,
+}: StrikethroughRenderLeafProps) => {
   if (leaf[typeStrikethrough]) {
     return (
-      <StrikethroughText data-slate-type={typeStrikethrough}>
+      <StrikethroughText
+        className={typeStrikethrough}
+        data-slate-type={typeStrikethrough}
+      >
         {children}
       </StrikethroughText>
     );

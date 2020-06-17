@@ -1,18 +1,18 @@
-import { Editor, Point, Range } from 'slate';
-import { TableType } from './types';
+import { Editor, Point } from 'slate';
+import { isCollapsed } from '../../common/queries/isCollapsed';
+import { TableType, WithTableOptions } from './types';
 
 export const withTable = ({
-  typeTable = TableType.TABLE,
   typeTd = TableType.CELL,
-} = {}) => <T extends Editor>(editor: T) => {
-  const { deleteBackward, deleteForward, insertBreak } = editor;
+}: WithTableOptions = {}) => <T extends Editor>(editor: T) => {
+  const { deleteBackward, deleteForward } = editor;
 
   const preventDeleteCell = (operation: any, pointCallback: any) => (
     unit: any
   ) => {
     const { selection } = editor;
 
-    if (selection && Range.isCollapsed(selection)) {
+    if (isCollapsed(selection)) {
       const [cell] = Editor.nodes(editor, {
         match: (n) => n.type === typeTd,
       });
@@ -21,7 +21,7 @@ export const withTable = ({
         const [, cellPath] = cell;
         const start = pointCallback(editor, cellPath);
 
-        if (Point.equals(selection.anchor, start)) {
+        if (selection && Point.equals(selection.anchor, start)) {
           return;
         }
       }
@@ -35,20 +35,6 @@ export const withTable = ({
 
   // prevent deleting cells with deleteForward
   editor.deleteForward = preventDeleteCell(deleteForward, Editor.end);
-
-  editor.insertBreak = () => {
-    const { selection } = editor;
-
-    if (selection) {
-      const [table] = Editor.nodes(editor, {
-        match: (n) => n.type === typeTable,
-      });
-
-      if (table) return;
-    }
-
-    insertBreak();
-  };
 
   return editor;
 };

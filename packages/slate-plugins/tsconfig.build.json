@@ -1,7 +1,18 @@
 {
-  "extends": "../../tsconfig.build.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "baseUrl": "src"
+    "baseUrl": "",
+    "declaration": true,
+    "declarationDir": "./dist",
+    "declarationMap": true,
+    "outDir": "./dist",
+    "sourceMap": true
   },
+  "exclude": [
+    "**/*test*",
+    "**/*.spec*",
+    "**/*template*",
+    "**/*fixture*"
+  ],
   "include": ["src", "typings"]
 }

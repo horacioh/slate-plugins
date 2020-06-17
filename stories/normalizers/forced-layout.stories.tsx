@@ -7,13 +7,17 @@ import {
   HeadingPlugin,
   ParagraphPlugin,
   pipe,
-  withForcedLayout,
+  SlateDocument,
+  withNormalizeTypes,
+  withTrailingNode,
   withTransforms,
 } from '../../packages/slate-plugins/src';
 import { initialValueForcedLayout, nodeTypes } from '../config/initialValues';
 
 export default {
   title: 'Normalizers/Forced Layout',
+  component: withNormalizeTypes,
+  subcomponents: { withTrailingNode },
 };
 
 const plugins = [ParagraphPlugin(nodeTypes), HeadingPlugin(nodeTypes)];
@@ -22,7 +26,10 @@ const withPlugins = [
   withReact,
   withHistory,
   withTransforms(),
-  withForcedLayout(),
+  withNormalizeTypes({
+    rules: [{ path: [0, 0], strictType: nodeTypes.typeH1 }],
+  }),
+  withTrailingNode({ type: nodeTypes.typeH3, level: 1 }),
 ] as const;
 
 export const Example = () => {
@@ -35,7 +42,7 @@ export const Example = () => {
       <Slate
         editor={editor}
         value={value}
-        onChange={(newValue) => setValue(newValue)}
+        onChange={(newValue) => setValue(newValue as SlateDocument)}
       >
         <EditablePlugins
           plugins={plugins}

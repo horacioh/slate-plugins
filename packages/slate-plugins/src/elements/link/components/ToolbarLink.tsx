@@ -1,27 +1,30 @@
-import React from 'react';
-import { isNodeInSelection } from 'common/queries/isNodeInSelection';
-import { LINK } from 'elements/link/types';
+import * as React from 'react';
 import { useSlate } from 'slate-react';
-import { ToolbarButton, ToolbarCustomProps } from 'components/Toolbar';
+import { isNodeInSelection } from '../../../common/queries';
+import {
+  ToolbarButton,
+  ToolbarButtonProps,
+} from '../../../components/ToolbarButton';
 import { insertLink } from '../transforms';
+import { LINK } from '../types';
 
 export const ToolbarLink = ({
   typeLink = LINK,
   ...props
-}: ToolbarCustomProps) => {
+}: ToolbarButtonProps) => {
   const editor = useSlate();
 
   return (
     <ToolbarButton
-      {...props}
       active={isNodeInSelection(editor, typeLink)}
-      onMouseDown={(event: Event) => {
+      onMouseDown={(event) => {
         event.preventDefault();
 
         const url = window.prompt('Enter the URL of the link:');
         if (!url) return;
         insertLink(editor, url, { typeLink });
       }}
+      {...props}
     />
   );
 };

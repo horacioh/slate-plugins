@@ -1,21 +1,22 @@
-import React from 'react';
-import { createDefaultHandler } from 'common/utils/createDefaultHandler';
+import * as React from 'react';
 import { useSlate } from 'slate-react';
-import { ToolbarBlockProps, ToolbarButton } from 'components/Toolbar';
+import { getPreventDefaultHandler } from '../../common/utils';
+import { ToolbarButton } from '../../components/ToolbarButton';
 import { isMarkActive } from '../queries';
 import { toggleMark } from '../transforms';
+import { ToolbarMarkProps } from './ToolbarMark.types';
 
 /**
- * Toolbar button to toggle mark.
+ * Toolbar button to toggle the mark of the leaves in selection.
  */
-export const ToolbarMark = ({ type, clear, ...props }: ToolbarBlockProps) => {
+export const ToolbarMark = ({ type, clear, ...props }: ToolbarMarkProps) => {
   const editor = useSlate();
 
   return (
     <ToolbarButton
-      {...props}
       active={isMarkActive(editor, type)}
-      onMouseDown={createDefaultHandler(toggleMark, editor, type, clear)}
+      onMouseDown={getPreventDefaultHandler(toggleMark, editor, type, clear)}
+      {...props}
     />
   );
 };

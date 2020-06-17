@@ -1,3 +1,4 @@
+import 'tippy.js/dist/tippy.css';
 import React, { useMemo, useState } from 'react';
 import { boolean } from '@storybook/addon-knobs';
 import { CodeAlt } from '@styled-icons/boxicons-regular/CodeAlt';
@@ -21,22 +22,23 @@ import {
   LooksTwo,
   Search,
 } from '@styled-icons/material';
-import { createEditor } from 'slate';
+import { createEditor, Node } from 'slate';
 import { withHistory } from 'slate-history';
+import { Slate, withReact } from 'slate-react';
 import {
   ActionItemPlugin,
+  BalloonToolbar,
   BlockquotePlugin,
   BoldPlugin,
+  CodeBlockPlugin,
   CodePlugin,
-  createNode,
   decorateSearchHighlight,
   EditablePlugins,
+  ExitBreakPlugin,
   HeadingPlugin,
   HeadingToolbar,
   HighlightPlugin,
-  HoveringToolbar,
   ImagePlugin,
-  InlineCodePlugin,
   ItalicPlugin,
   LinkPlugin,
   ListPlugin,
@@ -47,17 +49,19 @@ import {
   MARK_SUBSCRIPT,
   MARK_SUPERSCRIPT,
   MARK_UNDERLINE,
+  MediaEmbedPlugin,
   MentionPlugin,
+  MentionSelect,
   ParagraphPlugin,
   pipe,
   SearchHighlightPlugin,
+  SlateDocument,
   SoftBreakPlugin,
   StrikethroughPlugin,
   SubscriptPlugin,
   SuperscriptPlugin,
   TablePlugin,
-  ToolbarBlock,
-  ToolbarCode,
+  ToolbarElement,
   ToolbarImage,
   ToolbarLink,
   ToolbarList,
@@ -65,65 +69,59 @@ import {
   ToolbarSearchHighlight,
   UnderlinePlugin,
   useMention,
-  VideoPlugin,
-  withBlock,
-  withBreakEmptyReset,
-  withDeleteStartReset,
-  withDeserializeHtml,
-  withForcedLayout,
-  withImage,
+  withAutoformat,
+  withDeserializeHTML,
+  withImageUpload,
+  withInlineVoid,
   withLink,
   withList,
-  withMention,
-  withShortcuts,
+  withNormalizeTypes,
+  withResetBlockType,
   withTable,
+  withToggleType,
+  withTrailingNode,
   withTransforms,
-  withVoid,
-} from 'slate-plugins-next/src';
-import { Slate, withReact } from 'slate-react';
+} from '../../packages/slate-plugins/src';
 import {
-  initialValueActionItem,
-  initialValueElements,
+  headingTypes,
+  initialValueAutoformat,
+  initialValueBasicElements,
+  initialValueBasicMarks,
   initialValueEmbeds,
+  initialValueExitBreak,
   initialValueForcedLayout,
+  initialValueHighlight,
   initialValueImages,
   initialValueLinks,
-  initialValueMarks,
+  initialValueList,
   initialValueMentions,
+  initialValuePasteHtml,
+  initialValueSoftBreak,
   initialValueTables,
   nodeTypes,
 } from '../config/initialValues';
-import { MENTIONS } from '../config/mentions';
-import { EDITABLE_VOID } from '../element/block-void/editable-voids/types';
+import { MENTIONABLES } from '../config/mentionables';
 
 export default {
   title: 'Examples/Playground',
 };
 
-const initialValue = [
+const initialValue: Node[] = [
   ...initialValueForcedLayout,
-  createNode(),
-  ...initialValueMarks,
-  createNode(),
-  ...initialValueElements,
-  createNode(),
-  ...initialValueActionItem,
-  createNode(),
+  ...initialValueBasicMarks,
+  ...initialValueHighlight,
+  ...initialValueBasicElements,
+  ...initialValueList,
   ...initialValueTables,
-  createNode(),
   ...initialValueLinks,
-  createNode(),
   ...initialValueMentions,
-  createNode(),
   ...initialValueImages,
-  createNode(),
   ...initialValueEmbeds,
+  ...initialValueAutoformat,
+  ...initialValueSoftBreak,
+  ...initialValueExitBreak,
+  ...initialValuePasteHtml,
 ];
-
-const resetOptions = {
-  ...nodeTypes,
-  types: [nodeTypes.typeActionItem, nodeTypes.typeBlockquote],
-};
 
 export const Plugins = () => {
   const plugins: any[] = [];
@@ -140,11 +138,12 @@ export const Plugins = () => {
   if (boolean('ListPlugin', true)) plugins.push(ListPlugin(nodeTypes));
   if (boolean('MentionPlugin', true)) plugins.push(MentionPlugin(nodeTypes));
   if (boolean('TablePlugin', true)) plugins.push(TablePlugin(nodeTypes));
-  if (boolean('VideoPlugin', true)) plugins.push(VideoPlugin(nodeTypes));
-  if (boolean('CodePlugin', true)) plugins.push(CodePlugin(nodeTypes));
+  if (boolean('MediaEmbedPlugin', true))
+    plugins.push(MediaEmbedPlugin(nodeTypes));
+  if (boolean('CodeBlockPlugin', true))
+    plugins.push(CodeBlockPlugin(nodeTypes));
   if (boolean('BoldPlugin', true)) plugins.push(BoldPlugin(nodeTypes));
-  if (boolean('InlineCodePlugin', true))
-    plugins.push(InlineCodePlugin(nodeTypes));
+  if (boolean('CodePlugin', true)) plugins.push(CodePlugin(nodeTypes));
   if (boolean('ItalicPlugin', true)) plugins.push(ItalicPlugin(nodeTypes));
   if (boolean('HighlightPlugin', true))
     plugins.push(HighlightPlugin(nodeTypes));
@@ -158,24 +157,71 @@ export const Plugins = () => {
     plugins.push(SubscriptPlugin(nodeTypes));
   if (boolean('SuperscriptPlugin', true))
     plugins.push(SuperscriptPlugin(nodeTypes));
-  if (boolean('SoftBreakPlugin', true)) plugins.push(SoftBreakPlugin());
+  if (boolean('SoftBreakPlugin', true))
+    plugins.push(
+      SoftBreakPlugin({
+        rules: [
+          { hotkey: 'shift+enter' },
+          {
+            hotkey: 'enter',
+            query: {
+              allow: [
+                nodeTypes.typeCodeBlock,
+                nodeTypes.typeBlockquote,
+                nodeTypes.typeTd,
+              ],
+            },
+          },
+        ],
+      })
+    );
+  if (boolean('ExitBreakPlugin', true))
+    plugins.push(
+      ExitBreakPlugin({
+        rules: [
+          {
+            hotkey: 'mod+enter',
+          },
+          {
+            hotkey: 'mod+shift+enter',
+            before: true,
+          },
+          {
+            hotkey: 'enter',
+            query: {
+              start: true,
+              end: true,
+              allow: headingTypes,
+            },
+          },
+        ],
+      })
+    );
 
   const withPlugins = [
     withReact,
     withHistory,
     withTable(nodeTypes),
-    withLink(nodeTypes),
-    withDeserializeHtml(plugins),
-    withImage(nodeTypes),
-    withMention(nodeTypes),
-    withBlock(nodeTypes),
-    withDeleteStartReset(resetOptions),
-    withBreakEmptyReset(resetOptions),
+    withLink(),
+    withDeserializeHTML({ plugins }),
+    withImageUpload(),
+    withToggleType({ defaultType: nodeTypes.typeP }),
+    withResetBlockType({
+      types: [
+        nodeTypes.typeActionItem,
+        nodeTypes.typeBlockquote,
+        nodeTypes.typeCodeBlock,
+      ],
+      defaultType: nodeTypes.typeP,
+    }),
     withList(nodeTypes),
-    withShortcuts(nodeTypes),
-    withVoid([EDITABLE_VOID, nodeTypes.typeVideo]),
+    withAutoformat(nodeTypes),
     withTransforms(),
-    withForcedLayout(),
+    withNormalizeTypes({
+      rules: [{ path: [0, 0], strictType: nodeTypes.typeH1 }],
+    }),
+    withTrailingNode({ type: nodeTypes.typeP, level: 1 }),
+    withInlineVoid({ plugins }),
   ] as const;
 
   const createReactEditor = () => () => {
@@ -192,13 +238,13 @@ export const Plugins = () => {
       decorate.push(decorateSearchHighlight({ search }));
 
     const {
-      MentionSelectComponent,
       index,
       search: mentionSearch,
       target,
+      values,
       onChangeMention,
       onKeyDownMention,
-    } = useMention(MENTIONS, {
+    } = useMention(MENTIONABLES, {
       maxSuggestions: 10,
     });
 
@@ -209,19 +255,19 @@ export const Plugins = () => {
         editor={editor}
         value={value}
         onChange={(newValue) => {
-          setValue(newValue);
+          setValue(newValue as SlateDocument);
 
-          onChangeMention({ editor });
+          onChangeMention(editor);
         }}
       >
         <ToolbarSearchHighlight icon={Search} setSearch={setSearchHighlight} />
         <HeadingToolbar>
-          <ToolbarBlock type={nodeTypes.typeH1} icon={<LooksOne />} />
-          <ToolbarBlock type={nodeTypes.typeH2} icon={<LooksTwo />} />
-          <ToolbarBlock type={nodeTypes.typeH3} icon={<Looks3 />} />
-          <ToolbarBlock type={nodeTypes.typeH4} icon={<Looks4 />} />
-          <ToolbarBlock type={nodeTypes.typeH5} icon={<Looks5 />} />
-          <ToolbarBlock type={nodeTypes.typeH6} icon={<Looks6 />} />
+          <ToolbarElement type={nodeTypes.typeH1} icon={<LooksOne />} />
+          <ToolbarElement type={nodeTypes.typeH2} icon={<LooksTwo />} />
+          <ToolbarElement type={nodeTypes.typeH3} icon={<Looks3 />} />
+          <ToolbarElement type={nodeTypes.typeH4} icon={<Looks4 />} />
+          <ToolbarElement type={nodeTypes.typeH5} icon={<Looks5 />} />
+          <ToolbarElement type={nodeTypes.typeH6} icon={<Looks6 />} />
           <ToolbarMark type={MARK_BOLD} icon={<FormatBold />} />
           <ToolbarMark type={MARK_ITALIC} icon={<FormatItalic />} />
           <ToolbarMark type={MARK_UNDERLINE} icon={<FormatUnderlined />} />
@@ -251,23 +297,34 @@ export const Plugins = () => {
             typeList={nodeTypes.typeOl}
             icon={<FormatListNumbered />}
           />
-          <ToolbarBlock
+          <ToolbarElement
             type={nodeTypes.typeBlockquote}
             icon={<FormatQuote />}
           />
-          <ToolbarCode {...nodeTypes} icon={<CodeBlock />} />
+          <ToolbarElement type={nodeTypes.typeCodeBlock} icon={<CodeBlock />} />
           <ToolbarImage {...nodeTypes} icon={<Image />} />
         </HeadingToolbar>
-        <HoveringToolbar>
-          <ToolbarMark reversed type={MARK_BOLD} icon={<FormatBold />} />
-          <ToolbarMark reversed type={MARK_ITALIC} icon={<FormatItalic />} />
+        <BalloonToolbar arrow>
+          <ToolbarMark
+            reversed
+            type={MARK_BOLD}
+            icon={<FormatBold />}
+            tooltip={{ content: 'Bold (⌘B)' }}
+          />
+          <ToolbarMark
+            reversed
+            type={MARK_ITALIC}
+            icon={<FormatItalic />}
+            tooltip={{ content: 'Italic (⌘I)' }}
+          />
           <ToolbarMark
             reversed
             type={MARK_UNDERLINE}
             icon={<FormatUnderlined />}
+            tooltip={{ content: 'Underline (⌘U)' }}
           />
-        </HoveringToolbar>
-        <MentionSelectComponent />
+        </BalloonToolbar>
+        <MentionSelect at={target} valueIndex={index} options={values} />
         <EditablePlugins
           plugins={plugins}
           decorate={decorate}

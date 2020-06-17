@@ -1,6 +1,6 @@
-import React from 'react';
-import { RenderElementProps } from 'slate-react';
+import * as React from 'react';
 import styled from 'styled-components';
+import { BlockquoteRenderElementProps } from '../types';
 
 const StyledBlockquoteElement = styled.blockquote`
   border-left: 2px solid #ddd;
@@ -13,6 +13,6 @@ const StyledBlockquoteElement = styled.blockquote`
 export const BlockquoteElement = ({
   attributes,
   children,
-}: RenderElementProps) => (
+}: BlockquoteRenderElementProps) => (
   <StyledBlockquoteElement {...attributes}>{children}</StyledBlockquoteElement>
 );

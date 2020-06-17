@@ -1,15 +1,15 @@
 import { createText } from '__test-utils__/hyperscript/creators';
 import { ACTION_ITEM } from 'elements/action-item';
 import { BLOCKQUOTE } from 'elements/blockquote';
-import { CODE } from 'elements/code';
+import { CODE_BLOCK } from 'elements/code-block';
 import { HeadingType } from 'elements/heading';
 import { IMAGE } from 'elements/image';
 import { LINK } from 'elements/link';
 import { ListType } from 'elements/list';
+import { MEDIA_EMBED } from 'elements/media-embed';
 import { MENTION } from 'elements/mention';
 import { PARAGRAPH } from 'elements/paragraph';
 import { TableType } from 'elements/table';
-import { VIDEO } from 'elements/video';
 import { createHyperscript } from 'slate-hyperscript';
 
 declare global {
@@ -29,10 +29,10 @@ const nodeTypes = {
   typeP: PARAGRAPH,
   typeMention: MENTION,
   typeBlockquote: BLOCKQUOTE,
-  typeCode: CODE,
+  typeCodeBlock: CODE_BLOCK,
   typeLink: LINK,
   typeImg: IMAGE,
-  typeVideo: VIDEO,
+  typeMediaEmbed: MEDIA_EMBED,
   typeActionItem: ACTION_ITEM,
   typeTable: TableType.TABLE,
   typeTr: TableType.ROW,
@@ -53,10 +53,10 @@ export const jsx = createHyperscript({
     hp: { type: nodeTypes.typeP },
     hmention: { type: nodeTypes.typeMention },
     hblockquote: { type: nodeTypes.typeBlockquote },
-    hcode: { type: nodeTypes.typeCode },
+    hcode: { type: nodeTypes.typeCodeBlock },
     ha: { type: nodeTypes.typeLink },
     himg: { type: nodeTypes.typeImg },
-    hvideo: { type: nodeTypes.typeVideo },
+    hembed: { type: nodeTypes.typeMediaEmbed },
     hactionitem: { type: nodeTypes.typeActionItem },
     htable: { type: nodeTypes.typeTable },
     htr: { type: nodeTypes.typeTr },

@@ -1,40 +1,59 @@
+import { Element } from 'slate';
+import { RenderElementProps } from 'slate-react';
+
 export enum TableType {
   TABLE = 'table',
   ROW = 'tr',
   CELL = 'td',
+  HEAD = 'th',
 }
 
-export interface TableTypeOptions {
+export const defaultTableTypes: Required<TableTypeOption> = {
+  typeTable: TableType.TABLE,
+  typeTr: TableType.ROW,
+  typeTd: TableType.CELL,
+  typeTh: TableType.HEAD,
+};
+
+// Data of Element node
+export interface TableNodeData {}
+
+// Element node
+export interface TableNode extends Element, TableNodeData {}
+
+// Type option
+export interface TableTypeOption {
   typeTable?: string;
   typeTr?: string;
   typeTd?: string;
+  typeTh?: string;
 }
 
-export interface RenderElementTableOptions extends TableTypeOptions {
+// deserialize options
+export interface TableDeserializeOptions extends TableTypeOption {}
+
+// renderElement options given as props
+interface TableRenderElementOptionsProps {}
+
+// renderElement options
+export interface TableRenderElementOptions
+  extends TableRenderElementOptionsProps,
+    TableTypeOption {
   Table?: any;
   Row?: any;
   Cell?: any;
 }
 
-export const defaultTableTypes: Required<TableTypeOptions> = {
-  typeTable: TableType.TABLE,
-  typeTr: TableType.ROW,
-  typeTd: TableType.CELL,
-};
+// renderElement props
+export interface TableRenderElementProps
+  extends RenderElementProps,
+    TableRenderElementOptionsProps {
+  element: TableNode;
+}
 
-export const emptyCell = (options = defaultTableTypes) => ({
-  type: options.typeTd,
-  children: [{ text: '' }],
-});
+// Plugin options
+export interface TablePluginOptions
+  extends TableRenderElementOptions,
+    TableDeserializeOptions {}
 
-export const emptyRow = (colCount: number, options = defaultTableTypes) => ({
-  type: options.typeTr,
-  children: Array(colCount)
-    .fill(colCount)
-    .map(() => emptyCell(options)),
-});
-
-export const emptyTable = (options = defaultTableTypes) => ({
-  type: options.typeTable,
-  children: [emptyRow(2, options), emptyRow(2, options)],
-});
+export interface WithTableOptions extends TableTypeOption {}

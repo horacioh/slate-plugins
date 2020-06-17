@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { render } from '@testing-library/react';
 import { IMAGE } from 'elements/image';
 import { ImageElement } from 'elements/image/components';
@@ -14,6 +14,7 @@ it('should render', () => {
       element={{
         type: IMAGE,
         children: [{ text: '' }],
+        url: 'test',
       }}
     >
       test

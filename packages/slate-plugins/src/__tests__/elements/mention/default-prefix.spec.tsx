@@ -1,8 +1,10 @@
 /** @jsx jsx */
 
 import { jsx } from '__test-utils__/jsx';
-import { withMention } from 'elements';
+import { MENTION } from 'elements';
 import { withReact } from 'slate-react';
+import { pipe } from '../../../common/utils';
+import { withInlineVoid } from '../../../element';
 
 const input = (
   <editor>
@@ -16,7 +18,7 @@ const output = (
   <editor>
     <hp>
       <htext />
-      <element type="mention" prefix="@" mentionable={{ value: 'Count Duku' }}>
+      <element type="mention" mentionable={{ value: 'Count Duku' }}>
         <htext />
       </element>
       <htext />
@@ -25,11 +27,14 @@ const output = (
 ) as any;
 
 it('should insert mention', () => {
-  const editor = withMention()(withReact(input));
+  const editor = pipe(
+    input,
+    withReact,
+    withInlineVoid({ inlineTypes: [MENTION], voidTypes: [MENTION] })
+  );
 
   editor.insertNode({
     type: 'mention',
-    prefix: '@',
     mentionable: { value: 'Count Duku' },
     children: [{ text: '' }],
   });

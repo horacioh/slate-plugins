@@ -1,9 +1,9 @@
-import { DeserializeHtml } from 'common/types';
-import { getElementDeserializer } from 'element/utils';
-import { BLOCKQUOTE } from './types';
+import { DeserializeHtml } from '../../common';
+import { getElementDeserializer } from '../../element/utils';
+import { BLOCKQUOTE, BlockquoteDeserializeOptions } from './types';
 
 export const deserializeBlockquote = ({
   typeBlockquote = BLOCKQUOTE,
-} = {}): DeserializeHtml => ({
+}: BlockquoteDeserializeOptions = {}): DeserializeHtml => ({
   element: getElementDeserializer(typeBlockquote, { tagNames: ['BLOCKQUOTE'] }),
 });

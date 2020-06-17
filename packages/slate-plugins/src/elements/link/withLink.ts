@@ -1,14 +1,8 @@
-import { isUrl } from 'common/utils';
-import { withInline } from 'element';
 import { ReactEditor } from 'slate-react';
+import { isUrl } from '../../common/utils';
 import { wrapLink } from './transforms';
-import { LINK } from './types';
 
-export const withLink = ({ typeLink = LINK } = {}) => <T extends ReactEditor>(
-  editor: T
-) => {
-  editor = withInline([typeLink])(editor);
-
+export const withLink = () => <T extends ReactEditor>(editor: T) => {
   const { insertData, insertText } = editor;
 
   editor.insertText = (text) => {

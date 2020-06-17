@@ -1,6 +1,7 @@
-import React from 'react';
-import { RenderElementProps, useFocused, useSelected } from 'slate-react';
+import * as React from 'react';
+import { useFocused, useSelected } from 'slate-react';
 import styled from 'styled-components';
+import { ImageRenderElementProps } from '../types';
 
 const Image = styled.img<{ selected: boolean; focused: boolean }>`
   display: block;
@@ -15,8 +16,8 @@ export const ImageElement = ({
   attributes,
   children,
   element,
-}: RenderElementProps) => {
-  const url = element.url as string;
+}: ImageRenderElementProps) => {
+  const { url } = element;
   const selected = useSelected();
   const focused = useFocused();
 

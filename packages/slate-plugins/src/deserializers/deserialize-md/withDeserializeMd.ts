@@ -1,21 +1,31 @@
-import { Transforms } from 'slate';
-import { ReactEditor } from 'slate-react';
-import { parseMd } from './utils';
+import marked from "marked";
+import { Node, Transforms } from "slate";
+import { ReactEditor } from "slate-react";
+import { SlatePlugin } from "../../common";
+import { deserializeHTMLToDocument } from "../deserialize-html";
+import { filterBreaklines } from "./utils";
 
-export const withDeserializeMd = <T extends ReactEditor>(editor: T) => {
+/**
+ * Enables support for deserializing content
+ * from Markdown format to Slate format.
+ */
+export const withDeserializeMd = (plugins: SlatePlugin[]) => <
+  T extends ReactEditor
+>(
+  editor: T
+) => {
   const { insertData } = editor;
 
-  editor.insertData = data => {
-    const content = data.getData('text/plain');
+  editor.insertData = (data) => {
+    const content = data.getData("text/plain");
 
     if (content) {
       const fragment = parseMd(content);
 
-      if (!fragment.length) return;
-
-      if (fragment[0].type) {
-        Transforms.setNodes(editor, { type: fragment[0].type });
-      }
+      // `filterBreaklines` filters all the breaklines in the pasted document
+      const fragment: Node[] = deserializeHTMLToDocument(plugins)(
+        parsed.body
+      ).filter(filterBreaklines);
 
       Transforms.insertFragment(editor, fragment);
       return;

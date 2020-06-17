@@ -1,12 +1,12 @@
-import React from 'react';
-import { RenderElementProps } from 'slate-react';
+import * as React from 'react';
+import { LinkRenderElementProps } from '../types';
 
 export const LinkElement = ({
   attributes,
   children,
   element,
-}: RenderElementProps) => (
-  <a {...attributes} href={element.url as string}>
+}: LinkRenderElementProps) => (
+  <a {...attributes} href={element.url}>
     {children}
   </a>
 );
