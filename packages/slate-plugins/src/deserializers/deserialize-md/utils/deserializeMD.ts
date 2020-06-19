@@ -21,7 +21,15 @@ export const defaultNodeTypes = {
   },
 };
 
-export function deserializeMD({content, nodeTypes = defaultNodeTypes}) {
+export interface DeserializeMDOptions {
+  content: any;
+  nodeTypes?: any;
+}
+
+export function deserializeMD({
+  content,
+  nodeTypes = defaultNodeTypes,
+}: DeserializeMDOptions) {
   const tree: any = unified()
     .use(markdown)
     .use(slate, { nodeTypes })

@@ -27,8 +27,6 @@ export const withDeserializeMD = ({
 
     if (content) {
       const fragment = deserializeMD({ content });
-      // eslint-disable-next-line no-console
-      console.log('editor.insertData -> fragment', fragment);
       const firstNodeType = fragment[0].type as string | undefined;
 
       // replace the selected node type by the first block type
