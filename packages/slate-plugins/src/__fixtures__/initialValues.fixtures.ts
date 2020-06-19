@@ -456,7 +456,7 @@ export const initialValuePasteHtml: SlateDocument = [
   },
 ];
 
-export const initialValuePasteMd: SlateDocument = [
+export const initialValuePasteMD: SlateDocument = [
   {
     children: [
       {
